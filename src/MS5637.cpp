@@ -30,7 +30,7 @@
 #include "MS5637.h"
 #include <CrossPlatformI2C_Core.h>
 
-// See MS5637-02BA03 Low Voltage Barometric Pressure Sensor Data Sheet
+// See MS5637-02BA03 Low Voltage Barometric pressure Sensor Data Sheet
 static uint8_t MS5637_RESET   =  0x1E;
 
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
@@ -56,42 +56,42 @@ bool MS5637::begin(void)
     return nCRC == refCRC;
 }
 
-void MS5637::readData(double & Temperature, double & Pressure)
+void MS5637::readData(float & temperature, float & pressure)
 {
-    static double T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
-    uint32_t D1 = read(MS5637::ADC_D1);  // get raw pressure value
-    uint32_t D2 = read(MS5637::ADC_D2);  // get raw temperature value
-    double dT = D2 - _pcal[5]*pow(2,8);    // calculate temperature difference from reference
-    double OFFSET = _pcal[2]*pow(2, 17) + dT*_pcal[4]/pow(2,6);
-    double SENS = _pcal[1]*pow(2,16) + dT*_pcal[3]/pow(2,7);
+    static float t2, offset2, sens2;  // First order and second order corrections for raw S5637 temperature and pressure data
+    uint32_t d1 = read(MS5637::ADC_D1);  // get raw pressure value
+    uint32_t d2 = read(MS5637::ADC_D2);  // get raw temperature value
+    float dT = d2 - _pcal[5]*pow(2,8);    // calculate temperature difference from reference
+    float offset = _pcal[2]*pow(2, 17) + dT*_pcal[4]/pow(2,6);
+    float sens = _pcal[1]*pow(2,16) + dT*_pcal[3]/pow(2,7);
 
-    Temperature = (2000 + (dT*_pcal[6])/pow(2, 23))/100;           // First-order Temperature in degrees Centigrade
+    temperature = (2000 + (dT*_pcal[6])/pow(2, 23))/100;           // First-order temperature in degrees Centigrade
     //
     // Second order corrections
-    if(Temperature > 20) 
+    if(temperature > 20) 
     {
-        T2 = 5*dT*dT/pow(2, 38); // correction for high temperatures
-        OFFSET2 = 0;
-        SENS2 = 0;
+        t2 = 5*dT*dT/pow(2, 38); // correction for high temperatures
+        offset2 = 0;
+        sens2 = 0;
     }
-    if(Temperature < 20)                   // correction for low temperature
+    if(temperature < 20)                   // correction for low temperature
     {
-        T2      = 3*dT*dT/pow(2, 33); 
-        OFFSET2 = 61*(100*Temperature - 2000)*(100*Temperature - 2000)/16;
-        SENS2   = 29*(100*Temperature - 2000)*(100*Temperature - 2000)/16;
+        t2      = 3*dT*dT/pow(2, 33); 
+        offset2 = 61*(100*temperature - 2000)*(100*temperature - 2000)/16;
+        sens2   = 29*(100*temperature - 2000)*(100*temperature - 2000)/16;
     } 
-    if(Temperature < -15)                      // correction for very low temperature
+    if(temperature < -15)                      // correction for very low temperature
     {
-        OFFSET2 = OFFSET2 + 17*(100*Temperature + 1500)*(100*Temperature + 1500);
-        SENS2 = SENS2 + 9*(100*Temperature + 1500)*(100*Temperature + 1500);
+        offset2 = offset2 + 17*(100*temperature + 1500)*(100*temperature + 1500);
+        sens2 = sens2 + 9*(100*temperature + 1500)*(100*temperature + 1500);
     }
     // End of second order corrections
     //
-    Temperature = Temperature - T2/100;
-    OFFSET = OFFSET - OFFSET2;
-    SENS = SENS - SENS2;
+    temperature = temperature - t2/100;
+    offset = offset - offset2;
+    sens = sens - sens2;
 
-    Pressure = (((D1*SENS)/pow(2, 21) - OFFSET)/pow(2, 15))/100;  // Pressure in mbar or kPa
+    pressure = (((d1*sens)/pow(2, 21) - offset)/pow(2, 15))/100;  // pressure in mbar or kPa
 }
 
 void MS5637::promRead(uint16_t * destination)

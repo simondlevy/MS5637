@@ -80,7 +80,7 @@ void loop()
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-        double Temperature=0, Pressure=0;
+        float Temperature=0, Pressure=0;
         ms5637.readData(Temperature, Pressure);
 
         const int station_elevation_m = 1050.0*0.3048; // Accurate for the roof on Kris's house; convert from feet to meters

@@ -64,7 +64,7 @@ class MS5637 {
 
         bool begin(void);
 
-        void readData(double & Temperature, double & Pressure);
+        void readData(float & temperature, float & pressure);
 
     private:
 

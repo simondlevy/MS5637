@@ -35,8 +35,6 @@
 static uint8_t OSR = MS5637::ADC_8192;     // set pressure amd temperature oversample rate
 
 static uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
-static uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
-static double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
 
 MS5637 ms5637;
 
@@ -77,11 +75,12 @@ void loop()
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-        D1 = ms5637.read(MS5637::ADC_D1, OSR);  // get raw pressure value
-        D2 = ms5637.read(MS5637::ADC_D2, OSR);  // get raw temperature value
-        dT = D2 - Pcal[5]*pow(2,8);    // calculate temperature difference from reference
-        OFFSET = Pcal[2]*pow(2, 17) + dT*Pcal[4]/pow(2,6);
-        SENS = Pcal[1]*pow(2,16) + dT*Pcal[3]/pow(2,7);
+        static double T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
+        uint32_t D1 = ms5637.read(MS5637::ADC_D1, OSR);  // get raw pressure value
+        uint32_t D2 = ms5637.read(MS5637::ADC_D2, OSR);  // get raw temperature value
+        double dT = D2 - Pcal[5]*pow(2,8);    // calculate temperature difference from reference
+        double OFFSET = Pcal[2]*pow(2, 17) + dT*Pcal[4]/pow(2,6);
+        double SENS = Pcal[1]*pow(2,16) + dT*Pcal[3]/pow(2,7);
 
         Temperature = (2000 + (dT*Pcal[6])/pow(2, 23))/100;           // First-order Temperature in degrees Centigrade
         //
@@ -111,7 +110,7 @@ void loop()
 
         Pressure = (((D1*SENS)/pow(2, 21) - OFFSET)/pow(2, 15))/100;  // Pressure in mbar or kPa
 
-        const int station_elevation_m = 1050.0*0.3048; // Accurate for the roof on my house; convert from feet to meters
+        const int station_elevation_m = 1050.0*0.3048; // Accurate for the roof on Kris's house; convert from feet to meters
 
         float baroin = Pressure; // pressure is now in millibars
 

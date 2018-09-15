@@ -1,21 +1,21 @@
 #include "Wire.h"   
 
-#define ADC_256  0x00 // define pressure and temperature conversion rates
-#define ADC_512  0x02
-#define ADC_1024 0x04
-#define ADC_2048 0x06
-#define ADC_4096 0x08
-#define ADC_8192 0x0A
-#define ADC_D1   0x40
-#define ADC_D2   0x50
+static const uint8_t ADC_256  = 0x00; // define pressure and temperature conversion rates
+static const uint8_t ADC_512  = 0x02;
+static const uint8_t ADC_1024 = 0x04;
+static const uint8_t ADC_2048 = 0x06;
+static const uint8_t ADC_4096 = 0x08;
+static const uint8_t ADC_8192 = 0x0A;
+static const uint8_t ADC_D1   = 0x40;
+static const uint8_t ADC_D2   = 0x50;
 
 static uint8_t OSR = ADC_8192;     // set pressure amd temperature oversample rate
 
 // See MS5637-02BA03 Low Voltage Barometric Pressure Sensor Data Sheet
-#define MS5637_RESET      0x1E
+static uint8_t MS5637_RESET   =  0x1E;
 
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
-#define MS5637_ADDRESS 0x76   // Address of altimeter
+static uint8_t MS5637_ADDRESS = 0x76;   // Address of altimeter
 
 static uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
 static uint8_t nCRC;       // calculated check sum to ensure PROM integrity

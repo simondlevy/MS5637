@@ -36,9 +36,13 @@ MS5637::MS5637(Rate_t osr)
     _osr = osr;
 }
 
-bool MS5637::begin(uint8_t bus)
+MS5637::Error_t MS5637::begin(uint8_t bus)
 {
     _i2c = cpi2c_open(ADDRESS, bus);
+
+    if (_i2c <= 0) {
+        return ERROR_CONNECT;
+    }
 
     delay(200);
 
@@ -52,7 +56,11 @@ bool MS5637::begin(uint8_t bus)
 
     uint8_t nCRC = checkCRC(_pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
 
-    return nCRC == refCRC;
+    if (nCRC != refCRC) {
+        return ERROR_CHECKSUM;
+    }
+
+    return ERROR_NONE;
 }
 
 void MS5637::readData(float & temperature, float & pressure)

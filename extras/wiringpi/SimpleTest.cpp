@@ -40,6 +40,13 @@ static MS5637::Rate_t OSR = MS5637::ADC_8192;     // set pressure amd temperatur
 
 MS5637 ms5637 = MS5637(OSR);
 
+static void error(const char * errmsg)
+{
+    while (true) {
+        fprintf(stderr, "%s\n", errmsg);
+    }
+}
+
 void setup()
 {
     // Set up the wiringPi library
@@ -50,11 +57,18 @@ void setup()
 
     delay(100);
 
-    // Start the sensor
-    if (!ms5637.begin()) {
-        //while (true) {
-        //    printf("Unable to connect to MS5637\n");
-        //}
+    switch (ms5637.begin()) {
+
+        case MS5637::ERROR_CONNECT:
+            error("Unable to connect to MS5637");
+            break;
+
+        case MS5637::ERROR_CHECKSUM:
+            //error("Bad checksum"); // XXX should stop here
+            break;
+
+        default:
+            break;
     }
 }
 

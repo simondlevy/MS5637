@@ -51,6 +51,14 @@ class MS5637 {
 
         typedef enum {
 
+            ERROR_NONE,
+            ERROR_CONNECT,
+            ERROR_CHECKSUM
+
+        } Error_t;
+
+        typedef enum {
+
             ADC_256  = 0x00, 
             ADC_512  = 0x02,
             ADC_1024 = 0x04,
@@ -62,7 +70,7 @@ class MS5637 {
 
         MS5637(Rate_t osr);
 
-        bool begin(uint8_t bus=1);
+        Error_t begin(uint8_t bus=1);
 
         void readData(float & temperature, float & pressure);
 

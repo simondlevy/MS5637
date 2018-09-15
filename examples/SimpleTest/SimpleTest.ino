@@ -28,11 +28,14 @@
 
 #include "MS5637.h"
 
+static uint8_t OSR = MS5637::ADC_8192;     // set pressure amd temperature oversample rate
+
 static uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
 static uint8_t nCRC;       // calculated check sum to ensure PROM integrity
 static uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
 static double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
 
+MS5637 ms5637;
 
 void setup()
 {
@@ -41,13 +44,13 @@ void setup()
     Serial.begin(115200);
 
     // Reset the MS5637 pressure sensor
-    MS5637Reset();
+    ms5637.reset();
 
     delay(100);
     Serial.println("MS5637 pressure sensor reset...");
 
     // Read PROM data from MS5637 pressure sensor
-    MS5637PromRead(Pcal);
+    ms5637.promRead(Pcal);
 
     Serial.println("PROM dta read:");
     Serial.print("C0 = ");
@@ -66,7 +69,7 @@ void setup()
     Serial.print("C6 = ");
     Serial.println(Pcal[6]);
 
-    nCRC = MS5637checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
+    nCRC = ms5637.checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
     Serial.print("Checksum = ");
     Serial.print(nCRC);
     Serial.print(" , should be ");
@@ -94,8 +97,8 @@ void loop()
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-        D1 = MS5637Read(ADC_D1, OSR);  // get raw pressure value
-        D2 = MS5637Read(ADC_D2, OSR);  // get raw temperature value
+        D1 = ms5637.read(MS5637::ADC_D1, OSR);  // get raw pressure value
+        D2 = ms5637.read(MS5637::ADC_D2, OSR);  // get raw temperature value
         dT = D2 - Pcal[5]*pow(2,8);    // calculate temperature difference from reference
         OFFSET = Pcal[2]*pow(2, 17) + dT*Pcal[4]/pow(2,6);
         SENS = Pcal[1]*pow(2,16) + dT*Pcal[3]/pow(2,7);

@@ -10,12 +10,12 @@ static uint8_t MS5637_RESET   =  0x1E;
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
 static uint8_t MS5637_ADDRESS = 0x76;   // Address of altimeter
 
-void MS5637Reset()
+void MS5637::reset()
 {
     cpi2c_writeRegister(MS5637_ADDRESS, 0x00, MS5637_RESET);
 }
 
-void MS5637PromRead(uint16_t * destination)
+void MS5637::promRead(uint16_t * destination)
 {
     uint8_t data[2] = {0,0};
 
@@ -27,7 +27,7 @@ void MS5637PromRead(uint16_t * destination)
     }
 }
 
-uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  
+uint32_t MS5637::read(uint8_t CMD, uint8_t OSR)  
 {
     cpi2c_writeRegister(MS5637_ADDRESS, CMD|OSR, 0x00);
 
@@ -48,9 +48,7 @@ uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)
     return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); 
 }
 
-
-
-uint8_t MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
+uint8_t MS5637::checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
 {
     int cnt;
     unsigned int n_rem = 0;

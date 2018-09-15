@@ -1,6 +1,6 @@
 #include "Wire.h"   
 
-#include <CrossPlatformI2C.h>
+#include <CrossPlatformI2C_Core.h>
 
 static const uint8_t ADC_256  = 0x00; // define pressure and temperature conversion rates
 static const uint8_t ADC_512  = 0x02;
@@ -52,13 +52,14 @@ static void MS5637PromRead(uint16_t * destination)
 static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
 {
     uint8_t data[3] = {0,0,0};
-    Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-    Wire.write(CMD | OSR);                  // Put pressure conversion command in Tx buffer
-    Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
 
-    switch (OSR)
-    {
-        case ADC_256: delay(1); break;  // delay for conversion to complete
+    Wire.beginTransmission(MS5637_ADDRESS); 
+    Wire.write(CMD | OSR);                 
+    Wire.endTransmission(false);        
+
+    // Delay for conversion to complete
+    switch (OSR) {
+        case ADC_256: delay(1); break;  
         case ADC_512: delay(3); break;
         case ADC_1024: delay(4); break;
         case ADC_2048: delay(6); break;
@@ -66,14 +67,16 @@ static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
         case ADC_8192: delay(20); break;
     }
 
-    Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-    Wire.write(0x00);                        // Put ADC read command in Tx buffer
-    Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.beginTransmission(MS5637_ADDRESS);  
+    Wire.write(0x00);                        
+    Wire.endTransmission(false);        
     uint8_t i = 0;
-    Wire.requestFrom(MS5637_ADDRESS, 3);     // Read three bytes from slave PROM address 
+    Wire.requestFrom(MS5637_ADDRESS, 3);     
     while (Wire.available()) {
-        data[i++] = Wire.read(); }               // Put read results in the Rx buffer
-    return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); // construct PROM data for return to main program
+        data[i++] = Wire.read(); 
+    }               
+
+    return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); 
 }
 
 
@@ -100,6 +103,7 @@ static uint8_t MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PRO
     return (n_rem ^ 0x00);
 }
 
+// ===========================================================================
 
 void setup()
 {

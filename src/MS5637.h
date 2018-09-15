@@ -30,32 +30,36 @@ class MS5637 {
 
     public:
 
-    static constexpr uint8_t ADC_256  = 0x00; // define pressure and temperature conversion rates
-    static constexpr uint8_t ADC_512  = 0x02;
-    static constexpr uint8_t ADC_1024 = 0x04;
-    static constexpr uint8_t ADC_2048 = 0x06;
-    static constexpr uint8_t ADC_4096 = 0x08;
-    static constexpr uint8_t ADC_8192 = 0x0A;
+        typedef enum {
 
-    static constexpr uint8_t ADC_D1   = 0x40;
-    static constexpr uint8_t ADC_D2   = 0x50;
+            ADC_256  = 0x00, 
+            ADC_512  = 0x02,
+            ADC_1024 = 0x04,
+            ADC_2048 = 0x06,
+            ADC_4096 = 0x08,
+            ADC_8192 = 0x0A
 
-    MS5637(uint8_t osr);
+        } Rate_t;
 
-    bool begin(void);
+        MS5637(Rate_t osr);
 
-    void readData(double & Temperature, double & Pressure);
+        bool begin(void);
+
+        void readData(double & Temperature, double & Pressure);
 
     private:
 
-    uint8_t _osr;
+        static constexpr uint8_t ADC_D1   = 0x40;
+        static constexpr uint8_t ADC_D2   = 0x50;
 
-    uint16_t _pcal[8];
+        Rate_t _osr;
 
-    void promRead(uint16_t * destination);
+        uint16_t _pcal[8];
 
-    uint32_t read(uint8_t cmd);
+        void promRead(uint16_t * destination);
 
-    uint8_t checkCRC(uint16_t * n_prom);  // calculate checksum from PROM register contents
+        uint32_t read(uint8_t cmd);
+
+        uint8_t checkCRC(uint16_t * n_prom);  // calculate checksum from PROM register contents
 
 };

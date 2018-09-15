@@ -32,7 +32,7 @@
 
 #include "MS5637.h"
 
-static uint8_t OSR = MS5637::ADC_8192;     // set pressure amd temperature oversample rate
+static MS5637::Rate_t OSR = MS5637::ADC_8192;     // set pressure amd temperature oversample rate
 
 MS5637 ms5637 = MS5637(OSR);
 

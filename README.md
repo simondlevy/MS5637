@@ -9,8 +9,6 @@ We have tested this MS5637 library on the following hardware:
 
 * Buterfly STM32L4 board from Tlera Corp
 
-* Teensy 3.2, 3.6
-
 * Raspberry Pi 3
 
 * NVIDIA Jetson TX1

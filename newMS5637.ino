@@ -109,8 +109,10 @@ void setup()
 
     // Reset the MS5637 pressure sensor
     MS5637Reset();
+
     delay(100);
     Serial.println("MS5637 pressure sensor reset...");
+
     // Read PROM data from MS5637 pressure sensor
     MS5637PromRead(Pcal);
     Serial.println("PROM dta read:");
@@ -205,19 +207,12 @@ void loop()
         float altimeter_setting_pressure_mb = part1 * part6; // Output is now in adjusted millibars
         baroin = altimeter_setting_pressure_mb * 0.02953;
 
-        float altitude = 145366.45*(1. - pow((Pressure/1013.25), 0.190284));
-
         Serial.print("Digital temperature value = ");
         Serial.print( (float)Temperature, 2);
-        Serial.println(" C"); // temperature in degrees Celsius
-        Serial.print("Digital temperature value = ");
-        Serial.print(9.*(float) Temperature/5. + 32., 2);
-        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.println(" C"); 
         Serial.print("Digital pressure value = ");
-        Serial.print((float) Pressure, 2);  Serial.println(" mbar");// pressure in millibar
-        Serial.print("Altitude = ");
-        Serial.print(altitude, 2);
-        Serial.println(" feet\n");
+        Serial.print((float) Pressure, 2);  
+        Serial.println(" mbar\n");
     }
 
 } // loop()

@@ -1,97 +1,38 @@
-#include "Wire.h"   
+/* 
+   SimpleTest.ino: Example sketch for MS5637 barometer
+
+   Copyright (C) 2018 Simon D. Levy
+
+   Additional dependencies:
+
+       https://github.com/simondlevy/CrossPlatformDataBus
+
+   This file is part of MS5637.
+
+   MS5637 is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   MS5637 is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with MS5637.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 
 #include <CrossPlatformI2C_Core.h>
+#include <Wire.h>
 
-static const uint8_t ADC_256  = 0x00; // define pressure and temperature conversion rates
-static const uint8_t ADC_512  = 0x02;
-static const uint8_t ADC_1024 = 0x04;
-static const uint8_t ADC_2048 = 0x06;
-static const uint8_t ADC_4096 = 0x08;
-static const uint8_t ADC_8192 = 0x0A;
-static const uint8_t ADC_D1   = 0x40;
-static const uint8_t ADC_D2   = 0x50;
-
-static uint8_t OSR = ADC_8192;     // set pressure amd temperature oversample rate
-
-// See MS5637-02BA03 Low Voltage Barometric Pressure Sensor Data Sheet
-static uint8_t MS5637_RESET   =  0x1E;
-
-// Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
-static uint8_t MS5637_ADDRESS = 0x76;   // Address of altimeter
+#include "MS5637.h"
 
 static uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
 static uint8_t nCRC;       // calculated check sum to ensure PROM integrity
 static uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
 static double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
 
-static double Temperature, Pressure; // stores MS5637 pressures sensor pressure and temperature
-
-// For the MS5637, we write commands, and the MS5637 sends data in response, rather than directly reading
-// MS5637 registers
-
-static void MS5637Reset()
-{
-    cpi2c_writeRegister(MS5637_ADDRESS, 0x00, MS5637_RESET);
-}
-
-static void MS5637PromRead(uint16_t * destination)
-{
-    uint8_t data[2] = {0,0};
-
-    for (uint8_t ii = 0; ii < 7; ii++) {
-
-        cpi2c_readRegisters(MS5637_ADDRESS, 0xA0 | ii << 1, 2, data);
-
-        destination[ii] = (uint16_t) (((uint16_t) data[0] << 8) | data[1]); 
-    }
-}
-
-static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  
-{
-    cpi2c_writeRegister(MS5637_ADDRESS, CMD|OSR, 0x00);
-
-    // Delay for conversion to complete
-    switch (OSR) {
-        case ADC_256: delay(1); break;  
-        case ADC_512: delay(3); break;
-        case ADC_1024: delay(4); break;
-        case ADC_2048: delay(6); break;
-        case ADC_4096: delay(10); break;
-        case ADC_8192: delay(20); break;
-    }
-
-    uint8_t data[3] = {0,0,0};
-
-    cpi2c_readRegisters(MS5637_ADDRESS, 0x00, 3, data);
-
-    return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); 
-}
-
-
-
-static uint8_t MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
-{
-    int cnt;
-    unsigned int n_rem = 0;
-    uint8_t n_bit;
-
-    n_prom[0] = ((n_prom[0]) & 0x0FFF);  // replace CRC byte by 0 for checksum calculation
-    n_prom[7] = 0;
-    for(cnt = 0; cnt < 16; cnt++)
-    {
-        if(cnt%2==1) n_rem ^= (unsigned short) ((n_prom[cnt>>1]) & 0x00FF);
-        else         n_rem ^= (unsigned short)  (n_prom[cnt>>1]>>8);
-        for(n_bit = 8; n_bit > 0; n_bit--)
-        {
-            if(n_rem & 0x8000)    n_rem = (n_rem<<1) ^ 0x3000;
-            else                  n_rem = (n_rem<<1);
-        }
-    }
-    n_rem = ((n_rem>>12) & 0x000F);
-    return (n_rem ^ 0x00);
-}
-
-// ===========================================================================
 
 void setup()
 {
@@ -107,6 +48,7 @@ void setup()
 
     // Read PROM data from MS5637 pressure sensor
     MS5637PromRead(Pcal);
+
     Serial.println("PROM dta read:");
     Serial.print("C0 = ");
     Serial.println(Pcal[0]);
@@ -133,6 +75,8 @@ void setup()
 
 void loop()
 {  
+    static double Temperature, Pressure; 
+
     static uint32_t lastUpdate;
     static uint32_t delt_t;
     static uint32_t sumCount;

@@ -43,17 +43,27 @@ void setup()
     // Read PROM data from MS5637 pressure sensor
     MS5637PromRead(Pcal);
     Serial.println("PROM dta read:");
-    Serial.print("C0 = "); Serial.println(Pcal[0]);
+    Serial.print("C0 = ");
+Serial.println(Pcal[0]);
     unsigned char refCRC = Pcal[0] >> 12;
-    Serial.print("C1 = "); Serial.println(Pcal[1]);
-    Serial.print("C2 = "); Serial.println(Pcal[2]);
-    Serial.print("C3 = "); Serial.println(Pcal[3]);
-    Serial.print("C4 = "); Serial.println(Pcal[4]);
-    Serial.print("C5 = "); Serial.println(Pcal[5]);
-    Serial.print("C6 = "); Serial.println(Pcal[6]);
+    Serial.print("C1 = ");
+Serial.println(Pcal[1]);
+    Serial.print("C2 = ");
+Serial.println(Pcal[2]);
+    Serial.print("C3 = ");
+Serial.println(Pcal[3]);
+    Serial.print("C4 = ");
+Serial.println(Pcal[4]);
+    Serial.print("C5 = ");
+Serial.println(Pcal[5]);
+    Serial.print("C6 = ");
+Serial.println(Pcal[6]);
 
     nCRC = MS5637checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
-    Serial.print("Checksum = "); Serial.print(nCRC); Serial.print(" , should be "); Serial.println(refCRC);  
+    Serial.print("Checksum = ");
+Serial.print(nCRC);
+Serial.print(" , should be ");
+Serial.println(refCRC);  
 }
 
 void loop()
@@ -126,10 +136,17 @@ void loop()
 
         float altitude = 145366.45*(1. - pow((Pressure/1013.25), 0.190284));
 
-        Serial.print("Digital temperature value = "); Serial.print( (float)Temperature, 2); Serial.println(" C"); // temperature in degrees Celsius
-        Serial.print("Digital temperature value = "); Serial.print(9.*(float) Temperature/5. + 32., 2); Serial.println(" F"); // temperature in degrees Fahrenheit
-        Serial.print("Digital pressure value = "); Serial.print((float) Pressure, 2);  Serial.println(" mbar");// pressure in millibar
-        Serial.print("Altitude = "); Serial.print(altitude, 2); Serial.println(" feet");
+        Serial.print("Digital temperature value = ");
+        Serial.print( (float)Temperature, 2);
+        Serial.println(" C"); // temperature in degrees Celsius
+        Serial.print("Digital temperature value = ");
+        Serial.print(9.*(float) Temperature/5. + 32., 2);
+        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.print("Digital pressure value = ");
+        Serial.print((float) Pressure, 2);  Serial.println(" mbar");// pressure in millibar
+        Serial.print("Altitude = ");
+        Serial.print(altitude, 2);
+        Serial.println(" feet\n");
     }
 
 } // loop()

@@ -62,16 +62,21 @@ class MS5637 {
 
         MS5637(Rate_t osr);
 
-        bool begin(void);
+        bool begin(uint8_t bus=1);
 
         void readData(float & temperature, float & pressure);
 
     private:
 
-        static constexpr uint8_t ADC_D1   = 0x40;
-        static constexpr uint8_t ADC_D2   = 0x50;
+        static constexpr uint8_t ADDRESS = 0x76;   
+        static constexpr uint8_t RESET   =  0x1E;
+        static constexpr uint8_t ADC_D1  = 0x40;
+        static constexpr uint8_t ADC_D2  = 0x50;
 
         Rate_t _osr;
+
+        // Cross-platform support
+        uint8_t  _i2c;
 
         uint16_t _pcal[8];
 

@@ -29,23 +29,22 @@
 
 #include "MS5637.h"
 #include <CrossPlatformI2C_Core.h>
-
-// See MS5637-02BA03 Low Voltage Barometric pressure Sensor Data Sheet
-static uint8_t MS5637_RESET   =  0x1E;
-
-// Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
-static uint8_t MS5637_ADDRESS = 0x76;   // Address of altimeter
+#include <math.h>
 
 MS5637::MS5637(Rate_t osr)
 {
     _osr = osr;
 }
 
-bool MS5637::begin(void)
+bool MS5637::begin(uint8_t bus)
 {
-    cpi2c_writeRegister(MS5637_ADDRESS, 0x00, MS5637_RESET);
+    _i2c = cpi2c_open(ADDRESS, bus);
 
-    delay(100);
+    delay(200);
+
+    cpi2c_writeRegister(_i2c, 0x00, RESET);
+
+    delay(200);
 
     promRead(_pcal);
 
@@ -61,22 +60,22 @@ void MS5637::readData(float & temperature, float & pressure)
     static float t2, offset2, sens2;  // First order and second order corrections for raw S5637 temperature and pressure data
     uint32_t d1 = read(MS5637::ADC_D1);  // get raw pressure value
     uint32_t d2 = read(MS5637::ADC_D2);  // get raw temperature value
-    float dT = d2 - _pcal[5]*pow(2,8);    // calculate temperature difference from reference
-    float offset = _pcal[2]*pow(2, 17) + dT*_pcal[4]/pow(2,6);
-    float sens = _pcal[1]*pow(2,16) + dT*_pcal[3]/pow(2,7);
+    float dT = d2 - _pcal[5]*powf(2,8);    // calculate temperature difference from reference
+    float offset = _pcal[2]*powf(2, 17) + dT*_pcal[4]/powf(2,6);
+    float sens = _pcal[1]*powf(2,16) + dT*_pcal[3]/powf(2,7);
 
-    temperature = (2000 + (dT*_pcal[6])/pow(2, 23))/100;           // First-order temperature in degrees Centigrade
+    temperature = (2000 + (dT*_pcal[6])/powf(2, 23))/100;           // First-order temperature in degrees Centigrade
     //
     // Second order corrections
     if(temperature > 20) 
     {
-        t2 = 5*dT*dT/pow(2, 38); // correction for high temperatures
+        t2 = 5*dT*dT/powf(2, 38); // correction for high temperatures
         offset2 = 0;
         sens2 = 0;
     }
     if(temperature < 20)                   // correction for low temperature
     {
-        t2      = 3*dT*dT/pow(2, 33); 
+        t2      = 3*dT*dT/powf(2, 33); 
         offset2 = 61*(100*temperature - 2000)*(100*temperature - 2000)/16;
         sens2   = 29*(100*temperature - 2000)*(100*temperature - 2000)/16;
     } 
@@ -91,7 +90,7 @@ void MS5637::readData(float & temperature, float & pressure)
     offset = offset - offset2;
     sens = sens - sens2;
 
-    pressure = (((d1*sens)/pow(2, 21) - offset)/pow(2, 15))/100;  // pressure in mbar or kPa
+    pressure = (((d1*sens)/powf(2, 21) - offset)/powf(2, 15))/100;  // pressure in mbar or kPa
 }
 
 void MS5637::promRead(uint16_t * destination)
@@ -100,7 +99,7 @@ void MS5637::promRead(uint16_t * destination)
 
     for (uint8_t ii = 0; ii < 7; ii++) {
 
-        cpi2c_readRegisters(MS5637_ADDRESS, 0xA0 | ii << 1, 2, data);
+        cpi2c_readRegisters(_i2c, 0xA0 | ii << 1, 2, data);
 
         destination[ii] = (uint16_t) (((uint16_t) data[0] << 8) | data[1]); 
     }
@@ -108,7 +107,7 @@ void MS5637::promRead(uint16_t * destination)
 
 uint32_t MS5637::read(uint8_t cmd)  
 {
-    cpi2c_writeRegister(MS5637_ADDRESS, cmd|_osr, 0x00);
+    cpi2c_writeRegister(_i2c, cmd|_osr, 0x00);
 
     // Delay for conversion to complete
     switch (_osr) {
@@ -122,15 +121,15 @@ uint32_t MS5637::read(uint8_t cmd)
 
     uint8_t data[3] = {0,0,0};
 
-    cpi2c_readRegisters(MS5637_ADDRESS, 0x00, 3, data);
+    cpi2c_readRegisters(_i2c, 0x00, 3, data);
 
     return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); 
 }
 
 uint8_t MS5637::checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
 {
-    int cnt;
-    unsigned int n_rem = 0;
+    uint8_t cnt;
+    uint32_t n_rem = 0;
     uint8_t n_bit;
 
     n_prom[0] = ((n_prom[0]) & 0x0FFF);  // replace CRC byte by 0 for checksum calculation

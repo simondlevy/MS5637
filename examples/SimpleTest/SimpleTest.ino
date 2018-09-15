@@ -41,6 +41,13 @@ static MS5637::Rate_t OSR = MS5637::ADC_8192;     // set pressure amd temperatur
 
 MS5637 ms5637 = MS5637(OSR);
 
+static void error(const char * errmsg)
+{
+    while (true) {
+        Serial.println(errmsg);
+    }
+}
+
 void setup()
 {
 #ifdef __MK20DX256__
@@ -53,11 +60,18 @@ void setup()
 
     Serial.begin(115200);
 
-    // Start the sensor
-    if (!ms5637.begin()) {
-        while (true) {
-            Serial.println("Unable to connect to MS5637");
-        }
+    switch (ms5637.begin()) {
+
+        case MS5637::ERROR_CONNECT:
+            error("Unable to connect to MS5637");
+            break;
+
+        case MS5637::ERROR_CHECKSUM:
+            error("Bad checksum"); 
+            break;
+
+        default:
+            break;
     }
 }
 

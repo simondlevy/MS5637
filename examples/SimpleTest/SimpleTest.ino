@@ -27,10 +27,15 @@
  */
 
 
-#include <CrossPlatformI2C_Core.h>
-#include <Wire.h>
-
 #include "MS5637.h"
+
+#ifdef __MK20DX256__
+#include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
 
 static MS5637::Rate_t OSR = MS5637::ADC_8192;     // set pressure amd temperature oversample rate
 
@@ -38,7 +43,11 @@ MS5637 ms5637 = MS5637(OSR);
 
 void setup()
 {
+#ifdef __MK20DX256__
+    Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#else
     Wire.begin();
+#endif
 
     delay(100);
 

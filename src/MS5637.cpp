@@ -26,11 +26,9 @@
    along with MS5637.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
-#include <Wire.h>   
-#include <CrossPlatformI2C_Core.h>
 
 #include "MS5637.h"
+#include <CrossPlatformI2C_Core.h>
 
 // See MS5637-02BA03 Low Voltage Barometric Pressure Sensor Data Sheet
 static uint8_t MS5637_RESET   =  0x1E;

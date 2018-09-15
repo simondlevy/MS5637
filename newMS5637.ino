@@ -37,19 +37,16 @@ static void MS5637Reset()
 static void MS5637PromRead(uint16_t * destination)
 {
     uint8_t data[2] = {0,0};
+
     for (uint8_t ii = 0; ii < 7; ii++) {
-        Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-        Wire.write(0xA0 | ii << 1);              // Put PROM address in Tx buffer
-        Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
-        uint8_t i = 0;
-        Wire.requestFrom(MS5637_ADDRESS, 2);   // Read two bytes from slave PROM address 
-        while (Wire.available()) {
-            data[i++] = Wire.read(); }               // Put read results in the Rx buffer
-        destination[ii] = (uint16_t) (((uint16_t) data[0] << 8) | data[1]); // construct PROM data for return to main program
+
+        cpi2c_readRegisters(MS5637_ADDRESS, 0xA0 | ii << 1, 2, data);
+
+        destination[ii] = (uint16_t) (((uint16_t) data[0] << 8) | data[1]); 
     }
 }
 
-static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
+static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  
 {
     uint8_t data[3] = {0,0,0};
 

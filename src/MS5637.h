@@ -40,11 +40,21 @@ class MS5637 {
     static constexpr uint8_t ADC_D1   = 0x40;
     static constexpr uint8_t ADC_D2   = 0x50;
 
-    bool begin(uint16_t Pcal[8]);
+    MS5637(uint8_t osr);
+
+    bool begin(void);
+
+    void readData(double & Temperature, double & Pressure);
+
+    private:
+
+    uint8_t _osr;
+
+    uint16_t _pcal[8];
 
     void promRead(uint16_t * destination);
 
-    uint32_t read(uint8_t CMD, uint8_t OSR);  
+    uint32_t read(uint8_t cmd);
 
     uint8_t checkCRC(uint16_t * n_prom);  // calculate checksum from PROM register contents
 

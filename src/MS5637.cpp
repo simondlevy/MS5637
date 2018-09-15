@@ -38,19 +38,62 @@ static uint8_t MS5637_RESET   =  0x1E;
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
 static uint8_t MS5637_ADDRESS = 0x76;   // Address of altimeter
 
-bool MS5637::begin(uint16_t Pcal[8])
+MS5637::MS5637(uint8_t osr)
+{
+    _osr = osr;
+}
+
+bool MS5637::begin(void)
 {
     cpi2c_writeRegister(MS5637_ADDRESS, 0x00, MS5637_RESET);
 
     delay(100);
 
-    promRead(Pcal);
+    promRead(_pcal);
 
-    uint8_t refCRC = Pcal[0] >> 12;
+    uint8_t refCRC = _pcal[0] >> 12;
 
-    uint8_t nCRC = checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
+    uint8_t nCRC = checkCRC(_pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
 
     return nCRC == refCRC;
+}
+
+void MS5637::readData(double & Temperature, double & Pressure)
+{
+    static double T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
+    uint32_t D1 = read(MS5637::ADC_D1);  // get raw pressure value
+    uint32_t D2 = read(MS5637::ADC_D2);  // get raw temperature value
+    double dT = D2 - _pcal[5]*pow(2,8);    // calculate temperature difference from reference
+    double OFFSET = _pcal[2]*pow(2, 17) + dT*_pcal[4]/pow(2,6);
+    double SENS = _pcal[1]*pow(2,16) + dT*_pcal[3]/pow(2,7);
+
+    Temperature = (2000 + (dT*_pcal[6])/pow(2, 23))/100;           // First-order Temperature in degrees Centigrade
+    //
+    // Second order corrections
+    if(Temperature > 20) 
+    {
+        T2 = 5*dT*dT/pow(2, 38); // correction for high temperatures
+        OFFSET2 = 0;
+        SENS2 = 0;
+    }
+    if(Temperature < 20)                   // correction for low temperature
+    {
+        T2      = 3*dT*dT/pow(2, 33); 
+        OFFSET2 = 61*(100*Temperature - 2000)*(100*Temperature - 2000)/16;
+        SENS2   = 29*(100*Temperature - 2000)*(100*Temperature - 2000)/16;
+    } 
+    if(Temperature < -15)                      // correction for very low temperature
+    {
+        OFFSET2 = OFFSET2 + 17*(100*Temperature + 1500)*(100*Temperature + 1500);
+        SENS2 = SENS2 + 9*(100*Temperature + 1500)*(100*Temperature + 1500);
+    }
+    // End of second order corrections
+    //
+    Temperature = Temperature - T2/100;
+    OFFSET = OFFSET - OFFSET2;
+    SENS = SENS - SENS2;
+
+    Pressure = (((D1*SENS)/pow(2, 21) - OFFSET)/pow(2, 15))/100;  // Pressure in mbar or kPa
 }
 
 void MS5637::promRead(uint16_t * destination)
@@ -65,12 +108,12 @@ void MS5637::promRead(uint16_t * destination)
     }
 }
 
-uint32_t MS5637::read(uint8_t CMD, uint8_t OSR)  
+uint32_t MS5637::read(uint8_t cmd)  
 {
-    cpi2c_writeRegister(MS5637_ADDRESS, CMD|OSR, 0x00);
+    cpi2c_writeRegister(MS5637_ADDRESS, cmd|_osr, 0x00);
 
     // Delay for conversion to complete
-    switch (OSR) {
+    switch (_osr) {
         case ADC_256: delay(1); break;  
         case ADC_512: delay(3); break;
         case ADC_1024: delay(4); break;

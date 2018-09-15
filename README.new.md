@@ -5,7 +5,7 @@ Specialties MS5637 Low Voltage Barometric Pressure Sensor.
 To use this library you will also need our cross-platform support 
 [library](https://github.com/simondlevy/CrossPlatformDataBus).
 
-We have tested this EM7180 library on the following hardware:
+We have tested this MS5637 library on the following hardware:
 
 * Buterfly STM32L4 board from Tlera Corp
 

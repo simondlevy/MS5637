@@ -27,6 +27,7 @@ MSSRC = ../../src
 
 I2CINC = $(CPDB)/src
 I2CSRC = $(CPDB)/extras/i2c/wiringpi/src/
+CPCMN =  $(CPDB)/extras/common
 
 all: $(ALL)
 
@@ -42,8 +43,8 @@ MS5637.o: $(MSSRC)/MS5637.cpp
 WiringPiI2C.o: $(I2CSRC)/WiringPiI2C.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -c $(I2CSRC)/WiringPiI2C.cpp
 
-main.o: main.cpp 
-	g++ -std=c++11 -Wall -c main.cpp
+main.o: $(CPCMN)/main.cpp 
+	g++ -std=c++11 -Wall -c $(CPCMN)/main.cpp
 
 run: SimpleTest
 	./SimpleTest

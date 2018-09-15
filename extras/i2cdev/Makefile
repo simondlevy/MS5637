@@ -1,57 +1,61 @@
 # 
-# Makefile for EM7180 i2cdev examples
+# Makefile for MS5637 i2cdev examples
 #
 # Copyright (C) 2018 Simon D. Levy
 #
-# This file is part of EM7180.
+# This file is part of MS5637.
 #
-# EM7180 is free software: you can redistribute it and/or modify
+# MS5637 is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# EM7180 is distributed in the hope that it will be useful,
+# MS5637 is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+# along with MS5637.  If not, see <http://www.gnu.org/licenses/>.
 
 # Change this to whereever you installed CrossPlatformI2C
 CPDB = $(HOME)/CrossPlatformDataBus
   
-ALL = MasterTest
+ALL = SimpleTest
 
-EMSRC = ../../src
+MSSRC = ../../src
 
 all: $(ALL)
 
 I2CINC = $(CPDB)/src
 I2CSRC = $(CPDB)/extras/i2c/i2cdev/src
+CPCMN =  $(CPDB)/extras/common
 
-MasterTest: MasterTest.o EM7180.o EM7180_Master.o I2CDevI2C.o main.o
-	g++ -std=c++11 -o MasterTest MasterTest.o EM7180.o EM7180_Master.o I2CDevI2C.o main.o 
+SimpleTest: SimpleTest.o MS5637.o I2CDevI2C.o main.o errmsg.o timing.o
+	g++ -std=c++11 -o SimpleTest SimpleTest.o MS5637.o I2CDevI2C.o main.o errmsg.o timing.o
 
-MasterTest.o: MasterTest.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c MasterTest.cpp
+SimpleTest.o: SimpleTest.cpp 
+	g++ -std=c++11 -Wall -I$(CPCMN) -I$(I2CINC) -I$(MSSRC) -c SimpleTest.cpp
 
-EM7180.o: $(EMSRC)/EM7180.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
-
-EM7180_Master.o: $(EMSRC)/EM7180_Master.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180_Master.cpp
+MS5637.o: $(MSSRC)/MS5637.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(MSSRC) -c $(MSSRC)/MS5637.cpp
 
 I2CDevI2C.o: $(I2CSRC)/I2CDevI2C.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -c $(I2CSRC)/I2CDevI2C.cpp
 
-main.o: main.cpp 
-	g++ -std=c++11 -Wall -c main.cpp
+main.o: $(CPCMN)/main.cpp 
+	g++ -std=c++11 -Wall -c $(CPCMN)/main.cpp
 
-run: GetInfo
-	./GetInfo
+timing.o: $(CPCMN)/timing.cpp 
+	g++ -std=c++11 -Wall -I$(CPCMN) -c $(CPCMN)/timing.cpp
+
+errmsg.o: $(CPCMN)/errmsg.cpp 
+	g++ -std=c++11 -Wall -I$(CPCMN) -c $(CPCMN)/errmsg.cpp
+
+run: SimpleTest
+	./SimpleTest
 
 edit:
-	vim GetInfo.cpp
+	vim SimpleTest.cpp
 
 clean:
 	rm -f $(ALL) *.o *~

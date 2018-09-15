@@ -11,24 +11,18 @@
 
 static uint8_t OSR = ADC_8192;     // set pressure amd temperature oversample rate
 
-
 // See MS5637-02BA03 Low Voltage Barometric Pressure Sensor Data Sheet
 #define MS5637_RESET      0x1E
-#define MS5637_CONVERT_D1 0x40
-#define MS5637_CONVERT_D2 0x50
-#define MS5637_ADC_READ   0x00
 
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
 #define MS5637_ADDRESS 0x76   // Address of altimeter
 
-uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
-unsigned char nCRC;       // calculated check sum to ensure PROM integrity
-uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
-double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
+static uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
+static uint8_t nCRC;       // calculated check sum to ensure PROM integrity
+static uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
+static double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
 
-int16_t tempCount;            // temperature raw count output
-float   temperature;          // Stores the MPU9250 gyro internal chip temperature in degrees Celsius
-double Temperature, Pressure; // stores MS5637 pressures sensor pressure and temperature
+static double Temperature, Pressure; // stores MS5637 pressures sensor pressure and temperature
 
 // For the MS5637, we write commands, and the MS5637 sends data in response, rather than directly reading
 // MS5637 registers
@@ -84,11 +78,11 @@ static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
 
 
 
-static unsigned char MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
+static uint8_t MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
 {
     int cnt;
     unsigned int n_rem = 0;
-    unsigned char n_bit;
+    uint8_t n_bit;
 
     n_prom[0] = ((n_prom[0]) & 0x0FFF);  // replace CRC byte by 0 for checksum calculation
     n_prom[7] = 0;
@@ -122,7 +116,7 @@ void setup()
     Serial.println("PROM dta read:");
     Serial.print("C0 = ");
     Serial.println(Pcal[0]);
-    unsigned char refCRC = Pcal[0] >> 12;
+    uint8_t refCRC = Pcal[0] >> 12;
     Serial.print("C1 = ");
     Serial.println(Pcal[1]);
     Serial.print("C2 = ");

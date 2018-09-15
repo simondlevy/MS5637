@@ -48,9 +48,7 @@ static void MS5637PromRead(uint16_t * destination)
 
 static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  
 {
-    Wire.beginTransmission(MS5637_ADDRESS); 
-    Wire.write(CMD | OSR);                 
-    Wire.endTransmission(false);        
+    cpi2c_writeRegister(MS5637_ADDRESS, CMD|OSR, 0x00);
 
     // Delay for conversion to complete
     switch (OSR) {

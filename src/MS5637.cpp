@@ -38,9 +38,13 @@ static uint8_t MS5637_RESET   =  0x1E;
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
 static uint8_t MS5637_ADDRESS = 0x76;   // Address of altimeter
 
-void MS5637::begin()
+void MS5637::begin(uint16_t Pcal[8])
 {
     cpi2c_writeRegister(MS5637_ADDRESS, 0x00, MS5637_RESET);
+
+    delay(100);
+
+    promRead(Pcal);
 }
 
 void MS5637::promRead(uint16_t * destination)

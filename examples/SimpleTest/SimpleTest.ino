@@ -44,40 +44,24 @@ MS5637 ms5637;
 void setup()
 {
     Wire.begin();
+
     delay(100);
+
     Serial.begin(115200);
 
     // Start the sensor
-    ms5637.begin();
+    ms5637.begin(Pcal);
 
-    delay(100);
-    Serial.println("MS5637 pressure sensor online...");
-
-    // Read PROM data from MS5637 pressure sensor
-    ms5637.promRead(Pcal);
-
-    Serial.println("PROM dta read:");
-    Serial.print("C0 = ");
-    Serial.println(Pcal[0]);
     uint8_t refCRC = Pcal[0] >> 12;
-    Serial.print("C1 = ");
-    Serial.println(Pcal[1]);
-    Serial.print("C2 = ");
-    Serial.println(Pcal[2]);
-    Serial.print("C3 = ");
-    Serial.println(Pcal[3]);
-    Serial.print("C4 = ");
-    Serial.println(Pcal[4]);
-    Serial.print("C5 = ");
-    Serial.println(Pcal[5]);
-    Serial.print("C6 = ");
-    Serial.println(Pcal[6]);
 
     nCRC = ms5637.checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
-    Serial.print("Checksum = ");
-    Serial.print(nCRC);
-    Serial.print(" , should be ");
-    Serial.println(refCRC);  
+
+    while (true) {
+        Serial.print("Checksum = ");
+        Serial.print(nCRC);
+        Serial.print(" , should be ");
+        Serial.println(refCRC);  
+    }
 }
 
 void loop()

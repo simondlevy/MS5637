@@ -40,7 +40,7 @@ class MS5637 {
     static constexpr uint8_t ADC_D1   = 0x40;
     static constexpr uint8_t ADC_D2   = 0x50;
 
-    void begin(uint16_t Pcal[8]);
+    bool begin(uint16_t Pcal[8]);
 
     void promRead(uint16_t * destination);
 

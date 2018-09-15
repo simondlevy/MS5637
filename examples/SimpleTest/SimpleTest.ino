@@ -49,8 +49,11 @@ void setup()
     Serial.begin(115200);
 
     // Start the sensor
-    ms5637.begin(Pcal);
-
+    if (!ms5637.begin(Pcal)) {
+        while (true) {
+            Serial.println("Unable to connect to MS5637");
+        }
+    }
 }
 
 void loop()

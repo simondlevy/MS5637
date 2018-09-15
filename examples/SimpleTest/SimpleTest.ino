@@ -47,11 +47,11 @@ void setup()
     delay(100);
     Serial.begin(115200);
 
-    // Reset the MS5637 pressure sensor
-    ms5637.reset();
+    // Start the sensor
+    ms5637.begin();
 
     delay(100);
-    Serial.println("MS5637 pressure sensor reset...");
+    Serial.println("MS5637 pressure sensor online...");
 
     // Read PROM data from MS5637 pressure sensor
     ms5637.promRead(Pcal);

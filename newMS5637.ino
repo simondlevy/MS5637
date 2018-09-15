@@ -1,5 +1,7 @@
 #include "Wire.h"   
 
+#include <CrossPlatformI2C.h>
+
 static const uint8_t ADC_256  = 0x00; // define pressure and temperature conversion rates
 static const uint8_t ADC_512  = 0x02;
 static const uint8_t ADC_1024 = 0x04;
@@ -29,9 +31,7 @@ static double Temperature, Pressure; // stores MS5637 pressures sensor pressure 
 
 static void MS5637Reset()
 {
-    Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-    Wire.write(MS5637_RESET);                // Put reset command in Tx buffer
-    Wire.endTransmission();                  // Send the Tx buffer
+    cpi2c_writeRegister(MS5637_ADDRESS, 0x00, MS5637_RESET);
 }
 
 static void MS5637PromRead(uint16_t * destination)

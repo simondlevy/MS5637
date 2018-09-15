@@ -1,3 +1,31 @@
+/* 
+   MS5637.cpp: Implementation of MS5637 class library
+
+   Copyright (C) 2018 Simon D. Levy
+
+   Additional dependencies:
+
+       https://github.com/simondlevy/CrossPlatformDataBus
+
+   Adapted from:
+
+       https://raw.githubusercontent.com/kriswiner/MPU9250/master/MPU9250_MS5637_AHRS_t3.ino
+
+   This file is part of MS5637.
+
+   MS5637 is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   MS5637 is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with MS5637.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <Arduino.h>
 #include <Wire.h>   
 #include <CrossPlatformI2C_Core.h>

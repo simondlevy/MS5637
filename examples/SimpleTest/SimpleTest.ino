@@ -7,6 +7,10 @@
 
        https://github.com/simondlevy/CrossPlatformDataBus
 
+   Adapted from:
+
+       https://raw.githubusercontent.com/kriswiner/MPU9250/master/MPU9250_MS5637_AHRS_t3.ino
+
    This file is part of MS5637.
 
    MS5637 is free software: you can redistribute it and/or modify

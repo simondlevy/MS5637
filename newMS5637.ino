@@ -121,26 +121,26 @@ void setup()
     MS5637PromRead(Pcal);
     Serial.println("PROM dta read:");
     Serial.print("C0 = ");
-Serial.println(Pcal[0]);
+    Serial.println(Pcal[0]);
     unsigned char refCRC = Pcal[0] >> 12;
     Serial.print("C1 = ");
-Serial.println(Pcal[1]);
+    Serial.println(Pcal[1]);
     Serial.print("C2 = ");
-Serial.println(Pcal[2]);
+    Serial.println(Pcal[2]);
     Serial.print("C3 = ");
-Serial.println(Pcal[3]);
+    Serial.println(Pcal[3]);
     Serial.print("C4 = ");
-Serial.println(Pcal[4]);
+    Serial.println(Pcal[4]);
     Serial.print("C5 = ");
-Serial.println(Pcal[5]);
+    Serial.println(Pcal[5]);
     Serial.print("C6 = ");
-Serial.println(Pcal[6]);
+    Serial.println(Pcal[6]);
 
     nCRC = MS5637checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
     Serial.print("Checksum = ");
-Serial.print(nCRC);
-Serial.print(" , should be ");
-Serial.println(refCRC);  
+    Serial.print(nCRC);
+    Serial.print(" , should be ");
+    Serial.println(refCRC);  
 }
 
 void loop()
@@ -227,5 +227,3 @@ void loop()
     }
 
 } // loop()
-
-

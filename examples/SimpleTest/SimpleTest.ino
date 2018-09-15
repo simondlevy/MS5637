@@ -35,7 +35,6 @@
 static uint8_t OSR = MS5637::ADC_8192;     // set pressure amd temperature oversample rate
 
 static uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
-static uint8_t nCRC;       // calculated check sum to ensure PROM integrity
 static uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
 static double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
 
@@ -52,16 +51,6 @@ void setup()
     // Start the sensor
     ms5637.begin(Pcal);
 
-    uint8_t refCRC = Pcal[0] >> 12;
-
-    nCRC = ms5637.checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
-
-    while (true) {
-        Serial.print("Checksum = ");
-        Serial.print(nCRC);
-        Serial.print(" , should be ");
-        Serial.println(refCRC);  
-    }
 }
 
 void loop()

@@ -45,6 +45,17 @@ void MS5637::begin(uint16_t Pcal[8])
     delay(100);
 
     promRead(Pcal);
+
+    uint8_t refCRC = Pcal[0] >> 12;
+
+    uint8_t nCRC = checkCRC(Pcal);  //calculate checksum to ensure integrity of MS5637 calibration data
+
+    while (true) {
+        Serial.print("Checksum = ");
+        Serial.print(nCRC);
+        Serial.print(" , should be ");
+        Serial.println(refCRC);  
+    }
 }
 
 void MS5637::promRead(uint16_t * destination)

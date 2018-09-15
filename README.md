@@ -9,6 +9,12 @@ We have tested this MS5637 library on the following hardware:
 
 * Buterfly STM32L4 board from Tlera Corp
 
+* Teensy 3.2, 3.6
+
+* Raspberry Pi 3
+
+* NVIDIA Jetson TX1
+
 The <b>examples</b> directory contains a simple sketch showing how to use this class. As usual, just clone the repo
 into your Arduino libraries folder to get started. The class library and
 examples were adapted from  [sketch](https://raw.githubusercontent.com/kriswiner/MPU9250/master/MPU9250_MS5637_AHRS_t3.ino) a by Kris Winer.

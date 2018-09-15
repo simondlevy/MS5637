@@ -48,8 +48,6 @@ static void MS5637PromRead(uint16_t * destination)
 
 static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  
 {
-    uint8_t data[3] = {0,0,0};
-
     Wire.beginTransmission(MS5637_ADDRESS); 
     Wire.write(CMD | OSR);                 
     Wire.endTransmission(false);        
@@ -64,14 +62,9 @@ static uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)
         case ADC_8192: delay(20); break;
     }
 
-    Wire.beginTransmission(MS5637_ADDRESS);  
-    Wire.write(0x00);                        
-    Wire.endTransmission(false);        
-    uint8_t i = 0;
-    Wire.requestFrom(MS5637_ADDRESS, 3);     
-    while (Wire.available()) {
-        data[i++] = Wire.read(); 
-    }               
+    uint8_t data[3] = {0,0,0};
+
+    cpi2c_readRegisters(MS5637_ADDRESS, 0x00, 3, data);
 
     return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); 
 }
